@@ -26,6 +26,11 @@ app.get("/urls", (req, res) => { //have ejs file and its using render so it is l
   res.render("urls_index", templateVars);
 });
 
+app.get("/urls/:shortURL", (req, res) => {  //req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] } //gets defined when you make a request by going into the website
+  res.render("urls_show", templateVars);
+})
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
