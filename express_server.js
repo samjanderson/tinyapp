@@ -13,12 +13,17 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.get("/urls.json", (req, res) => {
+app.get("/urls.json", (req, res) => { //this is showing you your object
   res.json(urlDatabase);
 });
 
-app.get("/hello", (req, res) => {
+app.get("/hello", (req, res) => { //hello route anything you type into the browser bar will be seen as a get request
   res.send("<html><body>Hello <b>World</b></body></html>\n")
+});
+
+app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
 });
 
 app.listen(PORT, () => {
