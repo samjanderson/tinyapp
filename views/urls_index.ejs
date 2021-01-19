@@ -20,6 +20,7 @@
           <tr>
             <th scope="col">Short URL</th>
             <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
             <th scope="col">Delete</th>
           </tr>
         </thead>
@@ -33,10 +34,15 @@
                 <%= urls[url] %>
               </td>
               <td>
+                <!-- //edit here needs to take you to the appropriate urls show page -->
+                <a href="/urls/<%=url%>" class="btn btn-outline-primary">Edit</a>
+             
+            </td>
+              <td>
                 <form method="POST" action="/urls/<%= url %>/delete">
                   <button type="submit" class="btn btn-outline-danger">Delete</button>
                 </form>
-              </td>
+                </td>
             </tr>
             <% } %>
         </tbody>

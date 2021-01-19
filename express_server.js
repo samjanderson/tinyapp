@@ -76,17 +76,26 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   // console.log(req.params.shortURL)
   delete urlDatabase[req.params.shortURL] //delete shortURL
-  res.redirect("/urls")
+  res.redirect("/urls");
 });
-// delete info
-// so when you make your post request in express_server, /urls/9sm5xK/delete is what you type after the ( <HERE>, (req, res)
-// buuut that will only delete 9sm5xK, and we want it for each individual shortURL
-//use JS delete operator to remove the URL
-//after it has been deleted redirect client back to the urls_index page ("/urls")
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  // console.log(req.params.shortURL)
+  delete urlDatabase[req.params.shortURL] //delete shortURL
+  res.redirect("/urls");
+});
+
+//add a post route that updates a URL resource; POST /urls/:id
+app.post("/urls/:shortURL", (req, res) => {
+  let newLongURL = req.body.longURL;
+  //update in the database
+  urlDatabase[req.params.shortURL] = newLongURL;
+  res.redirect("/urls");
+});
 
 // localhost:8080/u/9sm5xK -> "http://www.google.com"
 app.get('/u/:shortURL', (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL]) //the dynamic key is a parameter so we can access it using req.params.whateveritis
+  res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
 });
 
 //google.ca you make a browser request to google who sends back HTML to your browser
