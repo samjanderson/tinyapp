@@ -8,7 +8,6 @@ function generateRandomString() {
   let result = '';
   let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let charactersLength = characters.length;
-  let randomNum;
   for (let i = 0; i < 6; i++) {
     let randomNum = Math.floor(Math.random() * charactersLength);
     result += characters.charAt(randomNum);
@@ -45,9 +44,10 @@ app.get("/urls/new", (req, res) => { //I think it says this needs to go above th
   res.render("urls_new");
 });
 
-app.get("/urls/:shortURL", (req, res) => {  //denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
+app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }; //gets defined when you make a request by going into the website
   //console.log(templateVars)
+  console.log('hello')
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 });
 
