@@ -1,6 +1,12 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const bodyParser = require("body-parser"); //says these two lines need to come before all other routes is that what it means?
+app.use(bodyParser.urlencoded({extended: true}));
+
+function generateRandomString() {
+
+}
 
 app.set("view engine", "ejs");
 
@@ -26,10 +32,21 @@ app.get("/urls", (req, res) => { //have ejs file and its using render so it is l
   res.render("urls_index", templateVars);
 });
 
+app.get("/urls/new", (req, res) => { //I think it says this needs to go above the one below here?
+  res.render("urls_new");
+});
+
 app.get("/urls/:shortURL", (req, res) => {  //req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] } //gets defined when you make a request by going into the website
-  res.render("urls_show", templateVars);
+  //console.log(templateVars)
+  res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 })
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
