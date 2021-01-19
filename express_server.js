@@ -54,8 +54,7 @@ app.get("/urls/new", (req, res) => {
 //req.params only includes the value that were given as part of the URL itself(represented by the variable shortURL in this case)
 app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }; //gets defined when you make a request by going into the website
-  console.log(templateVars)
-  console.log('hello') //writing this on the server this is all server, will run inside the terminal
+  // console.log(templateVars)
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 }); ///res.render sends something back to the browser
 
@@ -63,7 +62,8 @@ app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter deno
 //wendys/tim hortons same building is the server -> there is a valet and you tell them if you want to go to tims or wendys (like get and post here)
 
 app.post("/urls", (req, res) => {
-  // console.log(req.body);  // Log the POST request body to the console, this will hold the content
+  // console.log(req)
+  //  console.log(req.body);  // Log the POST request body to the console, this will hold the content
   let randomShortUrl = generateRandomString();
   urlDatabase[randomShortUrl] = req.body.longURL;
   // res.redirect(req.body.longURL); //redirect to the other route so the url/ short url like an edit page for the short URL status code of 301, 301 and 302 are redirects that are widely used
@@ -73,9 +73,20 @@ app.post("/urls", (req, res) => {
   //redirect is going back to the browser
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  // console.log(req.params.shortURL)
+  delete urlDatabase[req.params.shortURL] //delete shortURL
+  res.redirect("/urls")
+});
+// delete info
+// so when you make your post request in express_server, /urls/9sm5xK/delete is what you type after the ( <HERE>, (req, res)
+// buuut that will only delete 9sm5xK, and we want it for each individual shortURL
+//use JS delete operator to remove the URL
+//after it has been deleted redirect client back to the urls_index page ("/urls")
+
 // localhost:8080/u/9sm5xK -> "http://www.google.com"
 app.get('/u/:shortURL', (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL])
+  res.redirect(urlDatabase[req.params.shortURL]) //the dynamic key is a parameter so we can access it using req.params.whateveritis
 });
 
 //google.ca you make a browser request to google who sends back HTML to your browser
