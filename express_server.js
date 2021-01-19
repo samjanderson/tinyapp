@@ -2,11 +2,20 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser"); //says these two lines need to come before all other routes is that what it means?
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 function generateRandomString() {
-
+  let result = '';
+  let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let charactersLength = characters.length
+  let randomNum;
+  for (let i = 0; i < 6; i++) {
+    let randomNum = Math.floor(Math.random() * charactersLength)
+    result += characters.charAt(randomNum)
+  }
+  return result;
 }
+
 
 app.set("view engine", "ejs");
 
