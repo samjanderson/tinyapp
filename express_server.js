@@ -40,7 +40,7 @@ app.get("/urls", (req, res) => { //have ejs file and its using render so it is l
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => { //I think it says this needs to go above the one below here?
+app.get("/urls/new", (req, res) => { 
   res.render("urls_new");
 });
 
@@ -48,16 +48,13 @@ app.get("/urls/new", (req, res) => { //I think it says this needs to go above th
 // :shortURL = 'hello'
 // :otherThing = 'world'
 
-const myFunc = function(shortURL, otherThing) {
-  // do something with shortURL
-}
-
 //myFunc('hello', 'world')
 //myFunc(shortURL, otherThing) but the actual values are the req.params.otherThing and req.params.shortUrl
 
+//req.params only includes the value that were given as part of the URL itself(represented by the variable shortURL in this case)
 app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }; //gets defined when you make a request by going into the website
-  //console.log(templateVars)
+  console.log(templateVars)
   console.log('hello') //writing this on the server this is all server, will run inside the terminal
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 }); ///res.render sends something back to the browser
