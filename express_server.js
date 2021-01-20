@@ -52,6 +52,17 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+app.get("/register", (req, res) => { //this almost didnt work because of the same problem as before where it uses header but doesnt know
+  const templateVars = { //doesnt know what username is so we need to require cookies here and template var so its defined
+    username: req.cookies["username"],
+  };
+  res.render("registration_page", templateVars)
+})
+
+// localhost:8080/u/9sm5xK -> "http://www.google.com"
+app.get('/u/:shortURL', (req, res) => {
+  res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
+});
 
 //req.params only includes the value that were given as part of the URL itself(represented by the variable shortURL in this case)
 app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
@@ -62,6 +73,11 @@ app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter deno
   };
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 }); ///res.render sends something back to the browser
+
+// localhost:8080/u/9sm5xK -> "http://www.google.com"
+app.get('/u/:shortURL', (req, res) => {
+  res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
+});
 
 // localhost:8080/urls, POST
 //wendys/tim hortons same building is the server -> there is a valet and you tell them if you want to go to tims or wendys (like get and post here)
@@ -103,10 +119,6 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-// localhost:8080/u/9sm5xK -> "http://www.google.com"
-app.get('/u/:shortURL', (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);

@@ -1,15 +1,8 @@
-<!-- In the _header.ejs partial of your app, create a <form> that POSTs to /login.
-  The form should contain:
-  
-  a single text input with name="username"
-  a submit button to submit the form
-  Users will type in any username into this form in order to "sign in" for now.
-  Since the POST route does not exist yet, we expect that submission of the form will result in a server error. -->
-
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
@@ -19,20 +12,19 @@
       </div>
     </div>
     <% if (username) { %>
-    <div style ="font-size: 18px"> Logged in as <%= username %> &nbsp;&nbsp; </div>
-    <form class="form-inline" action="/logout" method="POST"> 
-      <div class="form-group mb-2">
-       <button type="submit" class="btn btn-outline-dark">Logout</button>
-      </div>
-    </form>
-    <% } else {  %>
-      <form class="form-inline" action="/login" method="POST"> 
+      <div style="font-size: 18px"> Logged in as <%= username %> &nbsp;&nbsp; </div>
+      <form class="form-inline" action="/logout" method="POST">
         <div class="form-group mb-2">
-          <input class="form-control" type="text" name="username" placeholder="Username">
-         <button type="submit" class="btn btn-outline-dark">Login</button>
+          <button type="submit" class="btn btn-outline-dark">Logout</button>
         </div>
       </form>
-    <%   }   %>
+      <% } else { %>
+        <form class="form-inline" action="/login" method="POST">
+          <div class="form-group mb-2">
+            <input class="form-control" type="text" name="username" placeholder="Username">
+            <button type="submit" class="btn btn-outline-dark">Login</button>
+          </div>
+        </form>
+        <% } %>
   </nav>
 </header>
-
