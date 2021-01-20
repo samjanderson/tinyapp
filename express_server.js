@@ -188,15 +188,30 @@ app.post('/login', (req, res) => {
   
   //this was here instead of helper function before
   for (let id in users) {
-    console.log(users[id])
+    // console.log(users[id])
+    if (req.body.email !== users[id].email) {
+      res.status(403).send('Incorrect email. That email cannot be found in our system')
+    }
+
     if (req.body.email === users[id].email) {
       console.log("found correct user")
-      if (req.body.password === users[id].password) {
-        console.log('password matches')
+      if (req.body.password !== users[id].password) {
+        res.status(403).send('Incorrect password')
+      } else {
         res.cookie('userID', id) 
         return res.redirect("/urls")
       }
     }
+
+
+    // if (req.body.email === users[id].email) {
+    //   console.log("found correct user")
+    //   if (req.body.password === users[id].password) {
+    //     console.log('password matches')
+    //     res.cookie('userID', id) 
+    //     return res.redirect("/urls")
+    //   }
+    // }
   }
   res.send("Invalid credentials")
 });
