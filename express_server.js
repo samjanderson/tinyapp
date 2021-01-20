@@ -29,8 +29,8 @@ const urlDatabase = {
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    email: "sam.andersonnn@live.ca", 
+    password: "1234"
   },
  "user2RandomID": {
     id: "user2RandomID", 
@@ -51,58 +51,107 @@ app.get("/hello", (req, res) => { //hello route anything you type into the brows
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// //passed here old working version
+// app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
+//   const templateVars = {
+//     urls: urlDatabase,
+//     username: req.cookies["username"],
+//   };
+//   res.render("urls_index", templateVars);
+// });
+
+//new attempt
 app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
+  const userID = req.cookies["userID"];
+  console.log(req.cookies)
+  // console.log(users)
+  const user = users[userID]
+  console.log(user)
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies["username"],
+    user
   };
   res.render("urls_index", templateVars);
 });
 
+
+//passed here old working version
+// app.get("/urls/new", (req, res) => {
+//   const templateVars = {
+//     username: req.cookies["username"],
+//   };
+//   res.render("urls_new", templateVars);
+// });
+
+//new attempt
 app.get("/urls/new", (req, res) => {
+  const userID = req.cookies["userID"];
+  const user = users[userID]
   const templateVars = {
-    username: req.cookies["username"],
+    user
   };
   res.render("urls_new", templateVars);
 });
 
-app.get("/register", (req, res) => { //this almost didnt work because of the same problem as before where it uses header but doesnt know
-  const templateVars = { //doesnt know what username is so we need to require cookies here and template var so its defined
-    username: req.cookies["username"],
+// //passed here old working version
+// app.get("/register", (req, res) => { 
+//   const templateVars = {
+//     username: req.cookies["username"],
+//   };
+//   res.render("registration_page", templateVars)
+// })
+
+//new attempt
+app.get("/register", (req, res) => { 
+  const userID = req.cookies["userID"];
+  const user = users[userID];
+  const templateVars = {
+    user
   };
   res.render("registration_page", templateVars)
 })
 
-// localhost:8080/u/9sm5xK -> "http://www.google.com"
+
 app.get('/u/:shortURL', (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
 });
 
-//req.params only includes the value that were given as part of the URL itself(represented by the variable shortURL in this case)
+// // passed here original working attempt
+// app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
+//   const templateVars = {
+//     shortURL: req.params.shortURL,
+//     longURL: urlDatabase[req.params.shortURL],
+//     username: req.cookies["username"], 
+//   };
+//   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
+// }); ///res.render sends something back to the browser
+
+//new version attempt
 app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
+  const userID = req.cookies["userID"];
+  const user = users[userID];
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"], //gets defined by making a request when you go into the website
+    user
   };
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 }); ///res.render sends something back to the browser
 
-// localhost:8080/u/9sm5xK -> "http://www.google.com"
+
 app.get('/u/:shortURL', (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
 });
 
-// localhost:8080/urls, POST
-//wendys/tim hortons same building is the server -> there is a valet and you tell them if you want to go to tims or wendys (like get and post here)
+app.get('/login', (req, res) => {
+  res.render('login')
+})
+
 
 app.post("/urls", (req, res) => {
-  //  console.log(req.body);  // Log the POST request body to the console, this will hold the content
   let randomShortUrl = generateRandomString();
   urlDatabase[randomShortUrl] = req.body.longURL;
-  res.redirect(`/urls/${randomShortUrl}`) // localhost:8080/urls/123abc
-  // res.send("Ok");         // Respond with 'Ok' (we will replace this) sends an HTTP status of 200 and then in the body here it is sending ok
-  //redirect is going back to the browser
+  res.redirect(`/urls/${randomShortUrl}`) 
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -121,28 +170,52 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
-app.post('/login', (req, res) => {
-  const { username } = req.body //destructuring watch a video get the username value out of the object and assign it to the variable
-  res.cookie('username', username);
-  res.redirect("/urls");
+// //passed here this was old working version
+// app.post('/login', (req, res) => {
+//   const { username } = req.body //destructuring watch a video get the username value out of the object and assign it to the variable
+//   res.cookie('username', username);
+//   res.redirect("/urls");
+// });
 
+//new attempt with Taylor
+app.post('/login', (req, res) => {
+  //  res.cookie('userID', userID);
+  // res.redirect("/urls");
+  for (let id in users) {
+    console.log(users[id])
+    if (req.body.email === users[id].email) {
+      console.log("found correct user")
+      if (req.body.password === users[id].password) {
+        console.log('password matches')
+        res.cookie('userID', id) 
+        return res.redirect("/urls")
+      }
+    }
+  }
+  res.send("Invalid credentials")
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username'); //this accepts the key we dont need the value
+  res.clearCookie('userID'); //this accepts the key we dont need the value
   res.redirect("/urls");
 });
 
 app.post("/register", (req, res) => {
+  if (req.body.email === "" || req.body.password === "") {
+    res.send("400 Error, username or password is empty")
+  }
+  for (let id in users) {
+    if (req.body.email === users[id].email) {
+      res.send("400 Error, email already belongs to an existing account")
+    }
+  }
   let randomUserID = generateRandomString();
   users[randomUserID] = {
     id: randomUserID, 
     email: req.body.email, 
     password: req.body.password,
   }
-  res.cookie('userID', randomUserID);
-  // console.log(users[randomUserID])
-  // console.log(users)
+  res.cookie('userID', randomUserID); //give the user this cookie(like a business card) you will get a cookie with a random user ID
   res.redirect("/urls")
   })
   
@@ -152,6 +225,7 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+//cookies is a variable that the browser keeps on the browser and  anytime you make a request it sends out the request and the cookie
 
 
 
