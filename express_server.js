@@ -93,6 +93,13 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect("/urls");
 });
 
+app.post('/login', (req, res) => {
+  const { username } = req.body //destructuring watch a video get the username value out of the object and assign it to the variable
+  console.log("trying to login")
+  res.cookie('username', username )
+  res.redirect("/urls")
+})
+
 // localhost:8080/u/9sm5xK -> "http://www.google.com"
 app.get('/u/:shortURL', (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
