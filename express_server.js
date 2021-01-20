@@ -15,7 +15,7 @@ function generateRandomString() {
     result += characters.charAt(randomNum);
   }
   return result;
-}
+};
 
 
 app.set("view engine", "ejs");
@@ -38,35 +38,28 @@ app.get("/hello", (req, res) => { //hello route anything you type into the brows
 });
 
 app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
-  const templateVars = { 
+  const templateVars = {
     urls: urlDatabase,
     username: req.cookies["username"],
   };
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => { 
-  const templateVars = { 
+app.get("/urls/new", (req, res) => {
+  const templateVars = {
     username: req.cookies["username"],
   };
   res.render("urls_new", templateVars);
 });
 
-// localhost:8080:/urls/hello/world
-// :shortURL = 'hello'
-// :otherThing = 'world'
-
-//myFunc('hello', 'world')
-//myFunc(shortURL, otherThing) but the actual values are the req.params.otherThing and req.params.shortUrl
 
 //req.params only includes the value that were given as part of the URL itself(represented by the variable shortURL in this case)
 app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
-  const templateVars = { 
-    shortURL: req.params.shortURL, 
+  const templateVars = {
+    shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
     username: req.cookies["username"], //gets defined by making a request when you go into the website
-    }; 
-  // console.log(templateVars)
+  };
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 }); ///res.render sends something back to the browser
 
@@ -74,74 +67,51 @@ app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter deno
 //wendys/tim hortons same building is the server -> there is a valet and you tell them if you want to go to tims or wendys (like get and post here)
 
 app.post("/urls", (req, res) => {
-  // console.log(req)
   //  console.log(req.body);  // Log the POST request body to the console, this will hold the content
   let randomShortUrl = generateRandomString();
   urlDatabase[randomShortUrl] = req.body.longURL;
-  // res.redirect(req.body.longURL); //redirect to the other route so the url/ short url like an edit page for the short URL status code of 301, 301 and 302 are redirects that are widely used
-  // console.log(urlDatabase)
   res.redirect(`/urls/${randomShortUrl}`) // localhost:8080/urls/123abc
   // res.send("Ok");         // Respond with 'Ok' (we will replace this) sends an HTTP status of 200 and then in the body here it is sending ok
   //redirect is going back to the browser
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  // console.log(req.params.shortURL)
   delete urlDatabase[req.params.shortURL] //delete shortURL
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  // console.log(req.params.shortURL)
   delete urlDatabase[req.params.shortURL] //delete shortURL
   res.redirect("/urls");
 });
 
-//add a post route that updates a URL resource; POST /urls/:id
 app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.longURL;
-  //update in the database
   urlDatabase[req.params.shortURL] = newLongURL;
   res.redirect("/urls");
 });
 
 app.post('/login', (req, res) => {
   const { username } = req.body //destructuring watch a video get the username value out of the object and assign it to the variable
-  console.log("trying to login")
-  res.cookie('username', username )
-  // const templateVars = { 
-  //   urls: urlDatabase,
-  //   username: req.cookies["username"],
-  // };
-  // res.render("urls_index", templateVars);
-  res.redirect("/urls")
+  res.cookie('username', username);
+  res.redirect("/urls");
 
-})
+});
 
 app.post("/logout", (req, res) => {
   res.clearCookie('username'); //this accepts the key we dont need the value
-  res.redirect("/urls")
-})
+  res.redirect("/urls");
+});
 
 // localhost:8080/u/9sm5xK -> "http://www.google.com"
 app.get('/u/:shortURL', (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
 });
 
-//google.ca you make a browser request to google who sends back HTML to your browser
-//get, post, alot of it is just semantics
-
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
 
-//Pass in the username to all views that include the _header.ejs partial and modify the _header.ejs partial to display the passed-in username
-// next to the form.
-//do I need to pass in username to all views or is it done through adjusting the partial itself?
-//to pass a username we should need <%= username %> with the username value inside of it
-//I should only need to modify the express_server and header files for it to apply everywhere
-
-//updated everywhere I saw template vars and passed in the new key
 
 
