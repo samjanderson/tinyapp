@@ -2,7 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser"); //says these two lines need to come before all other routes is that what it means?
+const cookieParser = require("cookie-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 function generateRandomString() {
   let result = '';
@@ -36,12 +38,18 @@ app.get("/hello", (req, res) => { //hello route anything you type into the brows
 });
 
 app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"],
+  };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => { 
-  res.render("urls_new");
+  const templateVars = { 
+    username: req.cookies["username"],
+  };
+  res.render("urls_new", templateVars);
 });
 
 // localhost:8080:/urls/hello/world
@@ -53,7 +61,11 @@ app.get("/urls/new", (req, res) => {
 
 //req.params only includes the value that were given as part of the URL itself(represented by the variable shortURL in this case)
 app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }; //gets defined when you make a request by going into the website
+  const templateVars = { 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"], //gets defined by making a request when you go into the website
+    }; 
   // console.log(templateVars)
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 }); ///res.render sends something back to the browser
@@ -97,6 +109,17 @@ app.post('/login', (req, res) => {
   const { username } = req.body //destructuring watch a video get the username value out of the object and assign it to the variable
   console.log("trying to login")
   res.cookie('username', username )
+  // const templateVars = { 
+  //   urls: urlDatabase,
+  //   username: req.cookies["username"],
+  // };
+  // res.render("urls_index", templateVars);
+  res.redirect("/urls")
+
+})
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username'); //this accepts the key we dont need the value
   res.redirect("/urls")
 })
 
@@ -111,3 +134,14 @@ app.get('/u/:shortURL', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+//Pass in the username to all views that include the _header.ejs partial and modify the _header.ejs partial to display the passed-in username
+// next to the form.
+//do I need to pass in username to all views or is it done through adjusting the partial itself?
+//to pass a username we should need <%= username %> with the username value inside of it
+//I should only need to modify the express_server and header files for it to apply everywhere
+
+//updated everywhere I saw template vars and passed in the new key
+
+
