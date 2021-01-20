@@ -25,6 +25,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//users object can take out examples later
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -118,6 +132,20 @@ app.post("/logout", (req, res) => {
   res.clearCookie('username'); //this accepts the key we dont need the value
   res.redirect("/urls");
 });
+
+app.post("/register", (req, res) => {
+  let randomUserID = generateRandomString();
+  users[randomUserID] = {
+    id: randomUserID, 
+    email: req.body.email, 
+    password: req.body.password,
+  }
+  res.cookie('userID', randomUserID);
+  // console.log(users[randomUserID])
+  // console.log(users)
+  res.redirect("/urls")
+  })
+  
 
 
 app.listen(PORT, () => {
