@@ -19,7 +19,12 @@
       </div>
     </div>
     <% if (username) { %>
-    <div style ="font-size: 18px"> Logged in as <%= username %> </div>
+    <div style ="font-size: 18px"> Logged in as <%= username %> &nbsp;&nbsp; </div>
+    <form class="form-inline" action="/logout" method="POST"> 
+      <div class="form-group mb-2">
+       <button type="submit" class="btn btn-outline-dark">Logout</button>
+      </div>
+    </form>
     <% } else {  %>
       <form class="form-inline" action="/login" method="POST"> 
         <div class="form-group mb-2">
