@@ -6,16 +6,7 @@ const cookieParser = require("cookie-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-function generateRandomString() {
-  let result = '';
-  let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let charactersLength = characters.length;
-  for (let i = 0; i < 6; i++) {
-    let randomNum = Math.floor(Math.random() * charactersLength);
-    result += characters.charAt(randomNum);
-  }
-  return result;
-};
+const { generateRandomString, getExistingEmailID } = require('./helpers')
 
 
 app.set("view engine", "ejs");
@@ -26,15 +17,15 @@ const urlDatabase = {
 };
 
 //users object can take out examples later
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "sam.andersonnn@live.ca", 
+    id: "userRandomID",
+    email: "sam.andersonnn@live.ca",
     password: "1234"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 }
@@ -102,7 +93,7 @@ app.get("/urls/new", (req, res) => {
 // })
 
 //new attempt
-app.get("/register", (req, res) => { 
+app.get("/register", (req, res) => {
   const userID = req.cookies["userID"];
   const user = users[userID];
   const templateVars = {
@@ -151,7 +142,7 @@ app.get('/login', (req, res) => {
 app.post("/urls", (req, res) => {
   let randomShortUrl = generateRandomString();
   urlDatabase[randomShortUrl] = req.body.longURL;
-  res.redirect(`/urls/${randomShortUrl}`) 
+  res.redirect(`/urls/${randomShortUrl}`)
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -177,10 +168,21 @@ app.post("/urls/:shortURL", (req, res) => {
 //   res.redirect("/urls");
 // });
 
-//new attempt with Taylor
 app.post('/login', (req, res) => {
   //  res.cookie('userID', userID);
   // res.redirect("/urls");
+  // const { email, password } = req.body
+  // const userID = getExistingEmailID(users, email)
+  // if (userID) {
+  //   if (req.body.password === users[userID].password) {
+  //     console.log('password matches');
+  //     res.cookie('userID', userID)
+  //     res.redirect("/urls")
+  //     return;
+  //   }
+  // }
+  
+  //this was here instead of helper function before
   for (let id in users) {
     console.log(users[id])
     if (req.body.email === users[id].email) {
@@ -202,23 +204,31 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
-    res.send("400 Error, username or password is empty")
+    res.status(400).send('Username or Password field is empty')
+    return;
   }
-  for (let id in users) {
-    if (req.body.email === users[id].email) {
-      res.send("400 Error, email already belongs to an existing account")
-    }
+  if (getExistingEmailID(users, req.body.email)) {
+    res.status(400).send('Email already belongs to an existing account')
+    return;
   }
+  //this was here instead of the helper function before
+  // for (let id in users) {
+  //   if (req.body.email === users[id].email) {
+  //     res.status(400).send('Email already belongs to an existing account')
+  //     return
+  //   }
+  // }
   let randomUserID = generateRandomString();
   users[randomUserID] = {
-    id: randomUserID, 
-    email: req.body.email, 
+    id: randomUserID,
+    email: req.body.email,
     password: req.body.password,
   }
   res.cookie('userID', randomUserID); //give the user this cookie(like a business card) you will get a cookie with a random user ID
   res.redirect("/urls")
-  })
-  
+})
+
+
 
 
 app.listen(PORT, () => {
