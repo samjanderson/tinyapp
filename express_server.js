@@ -1,12 +1,12 @@
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
-const bodyParser = require("body-parser"); //says these two lines need to come before all other routes is that what it means?
+const PORT = 8080;
+const bodyParser = require("body-parser");
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
-  name: 'session',   
+  name: 'session',
   keys: ['heyo'],
 
 }));
@@ -22,7 +22,7 @@ const urlDatabase = {
 };
 // key is short URL and userID is unique cookie
 
-// users object can take out examples later
+
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -36,16 +36,15 @@ const users = {
   }
 };
 
-
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// app.get("/urls.json", (req, res) => { //this is showing you your object
-//   res.json(urlDatabase);
-// });
+app.get("/urls.json", (req, res) => { 
+  res.json(urlDatabase);
+});
 
-app.get("/hello", (req, res) => { //hello route anything you type into the browser bar will be seen as a get request
+app.get("/hello", (req, res) => { 
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
@@ -77,8 +76,6 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  // const userID = req.session.userID;
-  // const user = users[userID];
   const templateVars = {
     user: null
   };
@@ -90,23 +87,15 @@ app.get('/u/:shortURL', (req, res) => {
   res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
-//NOT SURE IF I NEED THIS ONE OR NOT
-// app.get("/u/:id", (req, res) => {
-//   const shortURL = req.params.id;
-//   const longURL = urlDatabase[shortURL]['longURL'];
-//   res.redirect(longURL);
-// });
-
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.session.userID;
   const user = users[userID];
   let currentUsersUrls = urlsForUser(userID, urlDatabase);
   if (!user) {
-    return res.status(401).send('Please log in to retrieve your URLs'); //render after?
-  }
-  else if (!currentUsersUrls[shortURL]) {
-    return res.status(401).send('This URL does not belong to this account'); //render after?
+    return res.status(401).send('Please log in to retrieve your URLs'); 
+  } else if (!currentUsersUrls[shortURL]) {
+    return res.status(401).send('This URL does not belong to this account'); 
   }
 
   const templateVars = {
@@ -142,11 +131,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   let currentUsersUrls = urlsForUser(userID, urlDatabase);
   if (!user) {
     return res.status(401).send('Please log in to delete your URLs');
-  }
-  else if (!currentUsersUrls[shortURL]) {
+  } else if (!currentUsersUrls[shortURL]) {
     return res.status(401).send('This URL does not belong to this account');
-  }
-  else {
+  } else {
     delete urlDatabase[req.params.shortURL]; //delete shortURL
     res.redirect("/urls");
   }
@@ -159,11 +146,9 @@ app.post("/urls/:shortURL", (req, res) => {
   let currentUsersUrls = urlsForUser(userID, urlDatabase);
   if (!user) {
     return res.status(401).send('Please log in to retrieve your URLs');
-  }
-  else if (!currentUsersUrls[shortURL]) {
+  } else if (!currentUsersUrls[shortURL]) {
     return res.status(401).send('This URL does not belong to this account');
-  }
-  else {
+  } else {
     let newLongURL = req.body.longURL;
     urlDatabase[req.params.shortURL].longURL = newLongURL;
     res.redirect("/urls");
@@ -172,10 +157,10 @@ app.post("/urls/:shortURL", (req, res) => {
 
 
 app.post('/login', (req, res) => {
- 
-  const user = getUserByEmail(users, req.body.email)
+
+  const user = getUserByEmail(users, req.body.email);
   ///find the user by email... this should be a function
-  console.log(user)
+  console.log(user);
   //once the for loop is done we should have the user or it is not found
   if (!user) {
     res.status(403).send("Not found");
@@ -189,17 +174,14 @@ app.post('/login', (req, res) => {
   }
 
   //at this point we have the user and he has the right password so we have the right guy
-
-  // res.cookie('userID', user.id)
   req.session.userID = user.id;
   res.redirect("/urls");
 
 });
 
 app.post("/logout", (req, res) => {
-  // res.clearCookie('userID'); //this accepts the key we dont need the value
   req.session.userID = null;
-  //delete req.session.userID
+  //delete req.session.userID should also work
   res.redirect("/urls");
 });
 
@@ -218,18 +200,14 @@ app.post("/register", (req, res) => {
     res.status(400).send('Email already belongs to an existing account');
     return;
   }
- 
+
   let id = generateRandomString();
   const password = bcrypt.hashSync(passwordText, 10);
 
   users[id] = { id, email, password };
-  // console.log(users);
-  // res.cookie('userID', randomUserID); //give the user this cookie(like a business card) you will get a cookie with a random user ID
   req.session.userID = id;
   res.redirect("/urls");
 });
-
-
 
 
 app.listen(PORT, () => {

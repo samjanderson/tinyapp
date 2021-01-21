@@ -11,13 +11,13 @@ const generateRandomString = () => {
 
 
 const getUserByEmail = (users, email) => { 
-  for (let id in users) {
+  for (let id in users) { 
     if (email === users[id].email) {
       return users[id]; //that would return the whole particular
     }
   }
-  return null;
-}
+  return undefined; //changed from null to undefined
+};
 
 //urlDatabase could be defined as anything here it is just a placeholder
 const urlsForUser = (id, urlDatabase) => {
@@ -34,4 +34,4 @@ module.exports = {
   generateRandomString,
   getUserByEmail,
   urlsForUser
-}
+};
