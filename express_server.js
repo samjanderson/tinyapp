@@ -49,7 +49,8 @@ app.get("/urls", (req, res) => { //have ejs file and its using render so it is l
   const user = users[userID]
   const templateVars = {
     urls: urlDatabase,
-    user
+    user,
+    userID
   };
   res.render("urls_index", templateVars);
 });
