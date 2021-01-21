@@ -47,11 +47,18 @@ app.get("/hello", (req, res) => { //hello route anything you type into the brows
 app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
   const userID = req.cookies["userID"];
   const user = users[userID]
+  let filteredURLs = {}
+  for (let shortURL in urlDatabase) {
+   if (urlDatabase[shortURL].userID === userID ) { //looping through links in url database to see if the person who created it is trying to access
+      filteredURLs[shortURL] = {longURL: urlDatabase[shortURL].longURL, userID: userID}
+   } 
+  }
   const templateVars = {
-    urls: urlDatabase,
+    urls: filteredURLs,
     user,
     userID
   };
+
   res.render("urls_index", templateVars);
 });
 
@@ -97,7 +104,8 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
-    user
+    user,
+    userID
   };
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 }); ///res.render sends something back to the browser
