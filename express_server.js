@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser"); //says these two lines need to come before all other routes is that what it means?
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcrypt');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
@@ -28,7 +29,7 @@ const urlDatabase = {
 };
 // key is short URL and userID is unique cookie
 
-//users object can take out examples later
+// users object can take out examples later
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -41,6 +42,7 @@ const users = {
     password: "dishwasher-funk"
   }
 }
+
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -159,7 +161,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const user = users[userID];
   let currentUsersUrls = urlsForUser(userID)
   if (!user) {
-    return res.status(401).send('Please log in to delete your URLs') 
+    return res.status(401).send('Please log in to delete your URLs')
   }
   else if (!currentUsersUrls[shortURL]) {
     return res.status(401).send('This URL does not belong to this account');
@@ -176,10 +178,10 @@ app.post("/urls/:shortURL", (req, res) => {
   const user = users[userID];
   let currentUsersUrls = urlsForUser(userID)
   if (!user) {
-    return res.status(401).send('Please log in to retrieve your URLs') 
+    return res.status(401).send('Please log in to retrieve your URLs')
   }
   else if (!currentUsersUrls[shortURL]) {
-    return res.status(401).send('This URL does not belong to this account'); 
+    return res.status(401).send('This URL does not belong to this account');
   }
   else {
     let newLongURL = req.body.longURL;
@@ -211,32 +213,25 @@ app.post('/login', (req, res) => {
 
   //this was here instead of helper function before
   for (let id in users) {
-    // console.log(users[id])
-    if (req.body.email !== users[id].email) {
-      return res.status(403).send('Incorrect email. That email cannot be found in our system');
-    }
-
+    // if (req.body.email !== users[id].email) {
+    //   console.log('req body email', req.body.email)
+    //   console.log('users[id].email', users[id].email)
+    //   res.status(403).send('Incorrect email. That email cannot be found in our system');
+    // }
+    //could be refactored with a function to retrieve user by email
+    //we had it set to send back an invalid 
     if (req.body.email === users[id].email) {
       console.log("found correct user")
-      if (req.body.password !== users[id].password) {
-        return res.status(403).send('Incorrect password');
+      if (!bcrypt.compareSync(req.body.password, users[id].password)) {
+        res.status(403).send('Invalid credentials');
+        return;
       } else {
         res.cookie('userID', id)
-        return res.redirect("/urls");
+        res.redirect("/urls");
       }
     }
-
-
-    // if (req.body.email === users[id].email) {
-    //   console.log("found correct user")
-    //   if (req.body.password === users[id].password) {
-    //     console.log('password matches')
-    //     res.cookie('userID', id) 
-    //     return res.redirect("/urls")
-    //   }
-    // }
   }
-  res.send("Invalid credentials")
+  res.status(403).send("Invalid credentials") //in the right place?
 });
 
 app.post("/logout", (req, res) => {
@@ -261,11 +256,13 @@ app.post("/register", (req, res) => {
   //   }
   // }
   let randomUserID = generateRandomString();
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10)
   users[randomUserID] = {
     id: randomUserID,
     email: req.body.email,
-    password: req.body.password,
+    password: hashedPassword,
   }
+  console.log(users)
   res.cookie('userID', randomUserID); //give the user this cookie(like a business card) you will get a cookie with a random user ID
   res.redirect("/urls");
 });
