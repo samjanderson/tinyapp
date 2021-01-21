@@ -11,6 +11,16 @@ const { generateRandomString, getExistingEmailID } = require('./helpers')
 
 app.set("view engine", "ejs");
 
+const urlsForUser = (id) => {
+  let filteredURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      filteredURLs[shortURL] = { longURL: urlDatabase[shortURL].longURL, userID: id }
+    }
+  }
+  return filteredURLs;
+}
+
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
@@ -46,13 +56,8 @@ app.get("/hello", (req, res) => { //hello route anything you type into the brows
 
 app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
   const userID = req.cookies["userID"];
+  const filteredURLs = urlsForUser(userID);
   const user = users[userID]
-  let filteredURLs = {}
-  for (let shortURL in urlDatabase) {
-   if (urlDatabase[shortURL].userID === userID ) { //looping through links in url database to see if the person who created it is trying to access
-      filteredURLs[shortURL] = {longURL: urlDatabase[shortURL].longURL, userID: userID}
-   } 
-  }
   const templateVars = {
     urls: filteredURLs,
     user,
@@ -63,6 +68,8 @@ app.get("/urls", (req, res) => { //have ejs file and its using render so it is l
 });
 
 
+
+
 app.get("/urls/new", (req, res) => {
   const userID = req.cookies["userID"];
   const user = users[userID]
@@ -70,7 +77,7 @@ app.get("/urls/new", (req, res) => {
     user
   };
 
-  if(!userID) {
+  if (!userID) {
     return res.redirect("/login");
   }
 
@@ -88,7 +95,7 @@ app.get("/register", (req, res) => {
 
 
 app.get('/u/:shortURL', (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL].longURL); 
+  res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
 //NOT SURE IF I NEED THIS ONE OR NOT
@@ -98,9 +105,18 @@ app.get('/u/:shortURL', (req, res) => {
 //   res.redirect(longURL);
 // });
 
-app.get("/urls/:shortURL", (req, res) => {  
+app.get("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL
   const userID = req.cookies["userID"];
   const user = users[userID];
+  let currentUsersUrls = urlsForUser(userID)
+  if (!user) {
+    return res.status(401).send('Please log in to retrieve your URLs') //render after?
+  }
+  else if (!currentUsersUrls[shortURL]) {
+    return res.status(401).send('This URL does not belong to this account'); //render after?
+  }
+
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
@@ -110,6 +126,17 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 }); ///res.render sends something back to the browser
 
+
+// {
+// "b2xVn2": {
+//   longURL: "http://www.lighthouselabs.ca",
+//   userID: "aJ48lW"
+// },
+// "9sm5xK": {
+//   longURL: "http://www.google.com",
+//   userID: "aJ48lW"
+// }
+// }
 app.get('/login', (req, res) => {
   const userID = req.cookies["userID"];
   const templateVars = {
@@ -127,14 +154,32 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL] //delete shortURL
-  res.redirect("/urls");
+  let currentUsersUrls = urlsForUser(userID)
+  if (!user) {
+    return res.status(401).send('Please log in to delete your URLs') 
+  }
+  else if (!currentUsersUrls[shortURL]) {
+    return res.status(401).send('This URL does not belong to this account');
+  }
+  else {
+    delete urlDatabase[req.params.shortURL] //delete shortURL
+    res.redirect("/urls");
+  }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  let newLongURL = req.body.longURL;
-  urlDatabase[req.params.shortURL].longURL = newLongURL;
-  res.redirect("/urls");
+  let currentUsersUrls = urlsForUser(userID)
+  if (!user) {
+    return res.status(401).send('Please log in to retrieve your URLs') 
+  }
+  else if (!currentUsersUrls[shortURL]) {
+    return res.status(401).send('This URL does not belong to this account'); 
+  }
+  else {
+    let newLongURL = req.body.longURL;
+    urlDatabase[req.params.shortURL].longURL = newLongURL;
+    res.redirect("/urls");
+  }
 });
 
 // //passed here this was old working version
@@ -157,7 +202,7 @@ app.post('/login', (req, res) => {
   //     return;
   //   }
   // }
-  
+
   //this was here instead of helper function before
   for (let id in users) {
     // console.log(users[id])
@@ -170,7 +215,7 @@ app.post('/login', (req, res) => {
       if (req.body.password !== users[id].password) {
         return res.status(403).send('Incorrect password');
       } else {
-        res.cookie('userID', id) 
+        res.cookie('userID', id)
         return res.redirect("/urls");
       }
     }
