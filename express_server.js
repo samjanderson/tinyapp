@@ -11,10 +11,12 @@ const { generateRandomString, getExistingEmailID } = require('./helpers')
 
 app.set("view engine", "ejs");
 
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
+// key is short URL and userID is unique cookie
 
 //users object can take out examples later
 const users = {
@@ -34,9 +36,9 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.get("/urls.json", (req, res) => { //this is showing you your object
-  res.json(urlDatabase);
-});
+// app.get("/urls.json", (req, res) => { //this is showing you your object
+//   res.json(urlDatabase);
+// });
 
 app.get("/hello", (req, res) => { //hello route anything you type into the browser bar will be seen as a get request
   res.send("<html><body>Hello <b>World</b></body></html>\n");
@@ -83,7 +85,7 @@ app.get("/urls/new", (req, res) => {
   };
 
   if(!userID) {
-    res.redirect("/login");
+    return res.redirect("/login");
   }
 
   res.render("urls_new", templateVars);
@@ -97,7 +99,6 @@ app.get("/urls/new", (req, res) => {
 //   res.render("registration_page", templateVars)
 // })
 
-//new attempt
 app.get("/register", (req, res) => {
   const userID = req.cookies["userID"];
   const user = users[userID];
@@ -109,7 +110,7 @@ app.get("/register", (req, res) => {
 
 
 app.get('/u/:shortURL', (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
+  res.redirect(urlDatabase[req.params.shortURL].longURL); //the dynamic key is a parameter so we can access it using req.params.whateveritis
 });
 
 // // passed here original working attempt
@@ -122,22 +123,16 @@ app.get('/u/:shortURL', (req, res) => {
 //   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 // }); ///res.render sends something back to the browser
 
-//new version attempt
 app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
   const userID = req.cookies["userID"];
   const user = users[userID];
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user
   };
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
 }); ///res.render sends something back to the browser
-
-
-app.get('/u/:shortURL', (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL]); //the dynamic key is a parameter so we can access it using req.params.whateveritis
-});
 
 app.get('/login', (req, res) => {
   const userID = req.cookies["userID"];
@@ -149,14 +144,10 @@ app.get('/login', (req, res) => {
 
 
 app.post("/urls", (req, res) => {
+  const userID = req.cookies["userID"];
   let randomShortUrl = generateRandomString();
-  urlDatabase[randomShortUrl] = req.body.longURL;
+  urlDatabase[randomShortUrl] = { longURL: req.body.longURL, userID }
   res.redirect(`/urls/${randomShortUrl}`)
-});
-
-app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL] //delete shortURL
-  res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -166,7 +157,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.longURL;
-  urlDatabase[req.params.shortURL] = newLongURL;
+  urlDatabase[req.params.shortURL].longURL = newLongURL;
   res.redirect("/urls");
 });
 
@@ -195,16 +186,16 @@ app.post('/login', (req, res) => {
   for (let id in users) {
     // console.log(users[id])
     if (req.body.email !== users[id].email) {
-      res.status(403).send('Incorrect email. That email cannot be found in our system')
+      return res.status(403).send('Incorrect email. That email cannot be found in our system');
     }
 
     if (req.body.email === users[id].email) {
       console.log("found correct user")
       if (req.body.password !== users[id].password) {
-        res.status(403).send('Incorrect password')
+        return res.status(403).send('Incorrect password');
       } else {
         res.cookie('userID', id) 
-        return res.redirect("/urls")
+        return res.redirect("/urls");
       }
     }
 
@@ -228,11 +219,11 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "") {
-    res.status(400).send('Username or Password field is empty')
+    res.status(400).send('Username or Password field is empty');
     return;
   }
   if (getExistingEmailID(users, req.body.email)) {
-    res.status(400).send('Email already belongs to an existing account')
+    res.status(400).send('Email already belongs to an existing account');
     return;
   }
   //this was here instead of the helper function before
@@ -249,7 +240,7 @@ app.post("/register", (req, res) => {
     password: req.body.password,
   }
   res.cookie('userID', randomUserID); //give the user this cookie(like a business card) you will get a cookie with a random user ID
-  res.redirect("/urls")
+  res.redirect("/urls");
 });
 
 
