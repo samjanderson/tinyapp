@@ -24,15 +24,12 @@
             <th scope="col">Delete</th>
           </tr>
         </thead>
+        <% if (user) { %>
         <tbody>
           <% for(let url in urls) { %> 
             <tr>
-              <td>
-                <%= url %>
-              </td>
-              <td>
-                <%= urls[url].longURL %>
-              </td>
+              <td><%= url %></td>
+              <td><%= urls[url].longURL %></td>
               <td>
                 <!-- //edit here needs to take you to the appropriate urls show page -->
                 <a href="/urls/<%=url%>" class="btn btn-outline-primary">Edit</a>
@@ -46,6 +43,9 @@
             </tr>
             <% } %>
         </tbody>
+        <% } else { %>
+          <td>Please log in or register to be able to make and view your URLs</td>
+          <% } %>
       </table>
     </main>
     <!-- Bootstrap JS -->

@@ -44,22 +44,9 @@ app.get("/hello", (req, res) => { //hello route anything you type into the brows
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// //passed here old working version
-// app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
-//   const templateVars = {
-//     urls: urlDatabase,
-//     username: req.cookies["username"],
-//   };
-//   res.render("urls_index", templateVars);
-// });
-
-//new attempt
 app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
   const userID = req.cookies["userID"];
-  // console.log(req.cookies)
-  // console.log(users)
   const user = users[userID]
-  // console.log(user)
   const templateVars = {
     urls: urlDatabase,
     user
@@ -68,15 +55,6 @@ app.get("/urls", (req, res) => { //have ejs file and its using render so it is l
 });
 
 
-//passed here old working version
-// app.get("/urls/new", (req, res) => {
-//   const templateVars = {
-//     username: req.cookies["username"],
-//   };
-//   res.render("urls_new", templateVars);
-// });
-
-//new attempt
 app.get("/urls/new", (req, res) => {
   const userID = req.cookies["userID"];
   const user = users[userID]
@@ -91,14 +69,6 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-// //passed here old working version
-// app.get("/register", (req, res) => { 
-//   const templateVars = {
-//     username: req.cookies["username"],
-//   };
-//   res.render("registration_page", templateVars)
-// })
-
 app.get("/register", (req, res) => {
   const userID = req.cookies["userID"];
   const user = users[userID];
@@ -110,20 +80,17 @@ app.get("/register", (req, res) => {
 
 
 app.get('/u/:shortURL', (req, res) => {
-  res.redirect(urlDatabase[req.params.shortURL].longURL); //the dynamic key is a parameter so we can access it using req.params.whateveritis
+  res.redirect(urlDatabase[req.params.shortURL].longURL); 
 });
 
-// // passed here original working attempt
-// app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
-//   const templateVars = {
-//     shortURL: req.params.shortURL,
-//     longURL: urlDatabase[req.params.shortURL],
-//     username: req.cookies["username"], 
-//   };
-//   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
-// }); ///res.render sends something back to the browser
+//NOT SURE IF I NEED THIS ONE OR NOT
+// app.get("/u/:id", (req, res) => {
+//   const shortURL = req.params.id;
+//   const longURL = urlDatabase[shortURL]['longURL'];
+//   res.redirect(longURL);
+// });
 
-app.get("/urls/:shortURL", (req, res) => {  //think of the : as a parameter denotes that shortURL is a dynamic parameter req.params is like saying what is in the URL it will be the 2xnb etc, object with keys you define in the HTML
+app.get("/urls/:shortURL", (req, res) => {  
   const userID = req.cookies["userID"];
   const user = users[userID];
   const templateVars = {
