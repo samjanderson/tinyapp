@@ -5,9 +5,8 @@ const bodyParser = require("body-parser"); //says these two lines need to come b
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
 app.use(bodyParser.urlencoded({ extended: true }));
-//Does it matter what goes in here?
 app.use(cookieSession({
-  name: 'session',   //name of the cookie
+  name: 'session',   
   keys: ['heyo'],
 
 }));
