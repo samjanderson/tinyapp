@@ -11,21 +11,10 @@ app.use(cookieSession({
 
 }));
 
-const { generateRandomString, getExistingEmailID, getUserByEmail } = require('./helpers');
+const { generateRandomString, getUserByEmail, urlsForUser } = require('./helpers');
 
 
 app.set("view engine", "ejs");
-
-const urlsForUser = (id) => {
-  let filteredURLs = {};
-  for (let shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === id) {
-      filteredURLs[shortURL] = { longURL: urlDatabase[shortURL].longURL, userID: id };
-    }
-  }
-  return filteredURLs;
-};
-
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
@@ -62,7 +51,7 @@ app.get("/hello", (req, res) => { //hello route anything you type into the brows
 
 app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
   const userID = req.session.userID;
-  const filteredURLs = urlsForUser(userID);
+  const filteredURLs = urlsForUser(userID, urlDatabase);
   const user = users[userID];
   const templateVars = {
     urls: filteredURLs,
@@ -72,9 +61,6 @@ app.get("/urls", (req, res) => { //have ejs file and its using render so it is l
 
   res.render("urls_index", templateVars);
 });
-
-
-
 
 app.get("/urls/new", (req, res) => {
   const userID = req.session.userID;
@@ -115,7 +101,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.session.userID;
   const user = users[userID];
-  let currentUsersUrls = urlsForUser(userID);
+  let currentUsersUrls = urlsForUser(userID, urlDatabase);
   if (!user) {
     return res.status(401).send('Please log in to retrieve your URLs'); //render after?
   }
@@ -153,7 +139,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.session.userID;
   const user = users[userID];
-  let currentUsersUrls = urlsForUser(userID);
+  let currentUsersUrls = urlsForUser(userID, urlDatabase);
   if (!user) {
     return res.status(401).send('Please log in to delete your URLs');
   }
@@ -170,7 +156,7 @@ app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.session.userID;
   const user = users[userID];
-  let currentUsersUrls = urlsForUser(userID);
+  let currentUsersUrls = urlsForUser(userID, urlDatabase);
   if (!user) {
     return res.status(401).send('Please log in to retrieve your URLs');
   }
@@ -186,18 +172,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 
 app.post('/login', (req, res) => {
-  //  res.cookie('userID', userID);
-  // res.redirect("/urls");
-  // const { email, password } = req.body
-  // const userID = getExistingEmailID(users, email)
-  // if (userID) {
-  //   if (req.body.password === users[userID].password) {
-  //     console.log('password matches');
-  //     res.cookie('userID', userID)
-  //     res.redirect("/urls")
-  //     return;
-  //   }
-  // }
+ 
   const user = getUserByEmail(users, req.body.email)
   ///find the user by email... this should be a function
   console.log(user)

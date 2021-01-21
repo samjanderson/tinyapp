@@ -9,14 +9,6 @@ const generateRandomString = () => {
   return result;
 };
 
-const getExistingEmailID = (users, email) => {
-  for (let id in users) {
-    if (email === users[id].email) {
-      return id;
-    }
-  }
-  return false;
-}
 
 const getUserByEmail = (users, email) => { 
   for (let id in users) {
@@ -27,9 +19,19 @@ const getUserByEmail = (users, email) => {
   return null;
 }
 
+//urlDatabase could be defined as anything here it is just a placeholder
+const urlsForUser = (id, urlDatabase) => {
+  let filteredURLs = {};
+  for (let shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === id) {
+      filteredURLs[shortURL] = { longURL: urlDatabase[shortURL].longURL, userID: id };
+    }
+  }
+  return filteredURLs;
+};
 
 module.exports = {
   generateRandomString,
-  getExistingEmailID,
-  getUserByEmail
+  getUserByEmail,
+  urlsForUser
 }
