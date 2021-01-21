@@ -54,10 +54,10 @@ app.get("/hello", (req, res) => { //hello route anything you type into the brows
 //new attempt
 app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
   const userID = req.cookies["userID"];
-  console.log(req.cookies)
+  // console.log(req.cookies)
   // console.log(users)
   const user = users[userID]
-  console.log(user)
+  // console.log(user)
   const templateVars = {
     urls: urlDatabase,
     user
@@ -81,6 +81,11 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user
   };
+
+  if(!userID) {
+    res.redirect("/login");
+  }
+
   res.render("urls_new", templateVars);
 });
 
@@ -140,7 +145,7 @@ app.get('/login', (req, res) => {
     user: null
   }
   res.render('login', templateVars)
-})
+});
 
 
 app.post("/urls", (req, res) => {
@@ -245,7 +250,7 @@ app.post("/register", (req, res) => {
   }
   res.cookie('userID', randomUserID); //give the user this cookie(like a business card) you will get a cookie with a random user ID
   res.redirect("/urls")
-})
+});
 
 
 
