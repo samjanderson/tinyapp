@@ -18,8 +18,18 @@ const getExistingEmailID = (users, email) => {
   return false;
 }
 
+const getUserByEmail = (users, email) => { 
+  for (let id in users) {
+    if (email === users[id].email) {
+      return users[id]; //that would return the whole particular
+    }
+  }
+  return null;
+}
+
 
 module.exports = {
   generateRandomString,
-  getExistingEmailID
+  getExistingEmailID,
+  getUserByEmail
 }

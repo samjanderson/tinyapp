@@ -2,12 +2,17 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser"); //says these two lines need to come before all other routes is that what it means?
-const cookieParser = require("cookie-parser");
 const bcrypt = require('bcrypt');
+const cookieSession = require('cookie-session');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
+//Does it matter what goes in here?
+app.use(cookieSession({
+  name: 'session',   //name of the cookie
+  keys: ['heyo'],
 
-const { generateRandomString, getExistingEmailID } = require('./helpers')
+}));
+
+const { generateRandomString, getExistingEmailID, getUserByEmail } = require('./helpers');
 
 
 app.set("view engine", "ejs");
@@ -16,11 +21,11 @@ const urlsForUser = (id) => {
   let filteredURLs = {};
   for (let shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === id) {
-      filteredURLs[shortURL] = { longURL: urlDatabase[shortURL].longURL, userID: id }
+      filteredURLs[shortURL] = { longURL: urlDatabase[shortURL].longURL, userID: id };
     }
   }
   return filteredURLs;
-}
+};
 
 
 const urlDatabase = {
@@ -41,7 +46,7 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
 
 
 app.get("/", (req, res) => {
@@ -57,9 +62,9 @@ app.get("/hello", (req, res) => { //hello route anything you type into the brows
 });
 
 app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
-  const userID = req.cookies["userID"];
+  const userID = req.session.userID;
   const filteredURLs = urlsForUser(userID);
-  const user = users[userID]
+  const user = users[userID];
   const templateVars = {
     urls: filteredURLs,
     user,
@@ -73,8 +78,8 @@ app.get("/urls", (req, res) => { //have ejs file and its using render so it is l
 
 
 app.get("/urls/new", (req, res) => {
-  const userID = req.cookies["userID"];
-  const user = users[userID]
+  const userID = req.session.userID;
+  const user = users[userID];
   const templateVars = {
     user
   };
@@ -87,13 +92,13 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const userID = req.cookies["userID"];
-  const user = users[userID];
+  // const userID = req.session.userID;
+  // const user = users[userID];
   const templateVars = {
-    user
+    user: null
   };
-  res.render("registration_page", templateVars)
-})
+  res.render("registration_page", templateVars);
+});
 
 
 app.get('/u/:shortURL', (req, res) => {
@@ -108,12 +113,12 @@ app.get('/u/:shortURL', (req, res) => {
 // });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL
-  const userID = req.cookies["userID"];
+  const shortURL = req.params.shortURL;
+  const userID = req.session.userID;
   const user = users[userID];
-  let currentUsersUrls = urlsForUser(userID)
+  let currentUsersUrls = urlsForUser(userID);
   if (!user) {
-    return res.status(401).send('Please log in to retrieve your URLs') //render after?
+    return res.status(401).send('Please log in to retrieve your URLs'); //render after?
   }
   else if (!currentUsersUrls[shortURL]) {
     return res.status(401).send('This URL does not belong to this account'); //render after?
@@ -126,59 +131,49 @@ app.get("/urls/:shortURL", (req, res) => {
     userID
   };
   res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
-}); ///res.render sends something back to the browser
+});
 
 
-// {
-// "b2xVn2": {
-//   longURL: "http://www.lighthouselabs.ca",
-//   userID: "aJ48lW"
-// },
-// "9sm5xK": {
-//   longURL: "http://www.google.com",
-//   userID: "aJ48lW"
-// }
-// }
 app.get('/login', (req, res) => {
-  const userID = req.cookies["userID"];
+  // const userID = req.session.userID
   const templateVars = {
     user: null
-  }
-  res.render('login', templateVars)
+  };
+  res.render('login', templateVars);
 });
 
 
 app.post("/urls", (req, res) => {
-  const userID = req.cookies["userID"];
+  const userID = req.session.userID;
   let randomShortUrl = generateRandomString();
-  urlDatabase[randomShortUrl] = { longURL: req.body.longURL, userID }
-  res.redirect(`/urls/${randomShortUrl}`)
+  urlDatabase[randomShortUrl] = { longURL: req.body.longURL, userID };
+  res.redirect(`/urls/${randomShortUrl}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const shortURL = req.params.shortURL
-  const userID = req.cookies["userID"];
+  const shortURL = req.params.shortURL;
+  const userID = req.session.userID;
   const user = users[userID];
-  let currentUsersUrls = urlsForUser(userID)
+  let currentUsersUrls = urlsForUser(userID);
   if (!user) {
-    return res.status(401).send('Please log in to delete your URLs')
+    return res.status(401).send('Please log in to delete your URLs');
   }
   else if (!currentUsersUrls[shortURL]) {
     return res.status(401).send('This URL does not belong to this account');
   }
   else {
-    delete urlDatabase[req.params.shortURL] //delete shortURL
+    delete urlDatabase[req.params.shortURL]; //delete shortURL
     res.redirect("/urls");
   }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL
-  const userID = req.cookies["userID"];
+  const shortURL = req.params.shortURL;
+  const userID = req.session.userID;
   const user = users[userID];
-  let currentUsersUrls = urlsForUser(userID)
+  let currentUsersUrls = urlsForUser(userID);
   if (!user) {
-    return res.status(401).send('Please log in to retrieve your URLs')
+    return res.status(401).send('Please log in to retrieve your URLs');
   }
   else if (!currentUsersUrls[shortURL]) {
     return res.status(401).send('This URL does not belong to this account');
@@ -190,12 +185,6 @@ app.post("/urls/:shortURL", (req, res) => {
   }
 });
 
-// //passed here this was old working version
-// app.post('/login', (req, res) => {
-//   const { username } = req.body //destructuring watch a video get the username value out of the object and assign it to the variable
-//   res.cookie('username', username);
-//   res.redirect("/urls");
-// });
 
 app.post('/login', (req, res) => {
   //  res.cookie('userID', userID);
@@ -210,60 +199,59 @@ app.post('/login', (req, res) => {
   //     return;
   //   }
   // }
-
-  //this was here instead of helper function before
-  for (let id in users) {
-    // if (req.body.email !== users[id].email) {
-    //   console.log('req body email', req.body.email)
-    //   console.log('users[id].email', users[id].email)
-    //   res.status(403).send('Incorrect email. That email cannot be found in our system');
-    // }
-    //could be refactored with a function to retrieve user by email
-    //we had it set to send back an invalid 
-    if (req.body.email === users[id].email) {
-      console.log("found correct user")
-      if (!bcrypt.compareSync(req.body.password, users[id].password)) {
-        res.status(403).send('Invalid credentials');
-        return;
-      } else {
-        res.cookie('userID', id)
-        res.redirect("/urls");
-      }
-    }
+  const user = getUserByEmail(users, req.body.email)
+  ///find the user by email... this should be a function
+  console.log(user)
+  //once the for loop is done we should have the user or it is not found
+  if (!user) {
+    res.status(403).send("Not found");
+    return;
   }
-  res.status(403).send("Invalid credentials") //in the right place?
+
+  //at this point we know we have a user and we want to check their password
+  if (!bcrypt.compareSync(req.body.password, user.password)) {
+    res.status(403).send('Invalid credentials');
+    return;
+  }
+
+  //at this point we have the user and he has the right password so we have the right guy
+
+  // res.cookie('userID', user.id)
+  req.session.userID = user.id;
+  res.redirect("/urls");
+
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('userID'); //this accepts the key we dont need the value
+  // res.clearCookie('userID'); //this accepts the key we dont need the value
+  req.session.userID = null;
+  //delete req.session.userID
   res.redirect("/urls");
 });
 
 app.post("/register", (req, res) => {
-  if (req.body.email === "" || req.body.password === "") {
+  const email = req.body.email;
+  const passwordText = req.body.password;
+
+  //this new condition covers not only the empty string but also undefined
+  if (!email || !passwordText) {
     res.status(400).send('Username or Password field is empty');
     return;
   }
-  if (getExistingEmailID(users, req.body.email)) {
+
+  //do not continue if there is an existing user here getExistingEmailID is a good place for getUserByEmail() function to create
+  if (getUserByEmail(users, email)) {
     res.status(400).send('Email already belongs to an existing account');
     return;
   }
-  //this was here instead of the helper function before
-  // for (let id in users) {
-  //   if (req.body.email === users[id].email) {
-  //     res.status(400).send('Email already belongs to an existing account')
-  //     return
-  //   }
-  // }
-  let randomUserID = generateRandomString();
-  const hashedPassword = bcrypt.hashSync(req.body.password, 10)
-  users[randomUserID] = {
-    id: randomUserID,
-    email: req.body.email,
-    password: hashedPassword,
-  }
-  console.log(users)
-  res.cookie('userID', randomUserID); //give the user this cookie(like a business card) you will get a cookie with a random user ID
+ 
+  let id = generateRandomString();
+  const password = bcrypt.hashSync(passwordText, 10);
+
+  users[id] = { id, email, password };
+  // console.log(users);
+  // res.cookie('userID', randomUserID); //give the user this cookie(like a business card) you will get a cookie with a random user ID
+  req.session.userID = id;
   res.redirect("/urls");
 });
 
