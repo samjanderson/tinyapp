@@ -154,6 +154,9 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL
+  const userID = req.cookies["userID"];
+  const user = users[userID];
   let currentUsersUrls = urlsForUser(userID)
   if (!user) {
     return res.status(401).send('Please log in to delete your URLs') 
@@ -168,6 +171,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL
+  const userID = req.cookies["userID"];
+  const user = users[userID];
   let currentUsersUrls = urlsForUser(userID)
   if (!user) {
     return res.status(401).send('Please log in to retrieve your URLs') 
