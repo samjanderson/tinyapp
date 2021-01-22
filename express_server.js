@@ -20,7 +20,6 @@ const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
-// key is short URL and userID is unique cookie
 
 
 const users = {
@@ -40,15 +39,15 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.get("/urls.json", (req, res) => { 
+app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/hello", (req, res) => { 
+app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.get("/urls", (req, res) => { //have ejs file and its using render so it is looking for a template and rendering it with those variables
+app.get("/urls", (req, res) => {
   const userID = req.session.userID;
   const filteredURLs = urlsForUser(userID, urlDatabase);
   const user = users[userID];
@@ -95,7 +94,7 @@ app.get("/urls/:shortURL", (req, res) => {
   if (!user) {
     return res.status(401).send('Please log in to retrieve your URLs');
   } else if (!currentUsersUrls[shortURL]) {
-    return res.status(401).send('This URL does not belong to this account'); 
+    return res.status(401).send('This URL does not belong to this account');
   }
 
   const templateVars = {
@@ -104,12 +103,11 @@ app.get("/urls/:shortURL", (req, res) => {
     user,
     userID
   };
-  res.render("urls_show", templateVars); //res.render is like madlibs we call them templateVars because they are the variables that will end up in the template
+  res.render("urls_show", templateVars);
 });
 
 
 app.get('/login', (req, res) => {
-  // const userID = req.session.userID
   const templateVars = {
     user: null
   };
@@ -213,7 +211,6 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-//cookies is a variable that the browser keeps on the browser and  anytime you make a request it sends out the request and the cookie
 
 
 

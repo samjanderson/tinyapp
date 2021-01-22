@@ -12,20 +12,18 @@
       </div>
     </div>
     <% if (!user) { %>
-    <div class="navbar-nav">
-      <a class="nav-item nav-link" href="/register">Register</a>
-      <a class="nav-item nav-link" href="/login">Login</a>
-    </div>
-    <% } %>
-    <% if (user) { %>
-      <div style="font-size: 18px"> Logged in as <%= user.email  %> &nbsp;&nbsp; </div>
-      <form class="form-inline" action="/logout" method="POST">
-        <div class="form-group mb-2">
-          <button type="submit" class="btn btn-outline-dark">Logout</button>
-        </div>
-      </form>
+      <div class="navbar-nav">
+        <a class="nav-item nav-link" href="/register">Register</a>
+        <a class="nav-item nav-link" href="/login">Login</a>
+      </div>
       <% } %>
+        <% if (user) { %>
+          <div style="font-size: 18px"> Logged in as <%= user.email %> &nbsp;&nbsp; </div>
+          <form class="form-inline" action="/logout" method="POST">
+            <div class="form-group mb-2">
+              <button type="submit" class="btn btn-outline-dark">Logout</button>
+            </div>
+          </form>
+          <% } %>
   </nav>
 </header>
-
-

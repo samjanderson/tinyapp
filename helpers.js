@@ -10,13 +10,13 @@ const generateRandomString = () => {
 };
 
 
-const getUserByEmail = (users, email) => { 
-  for (let id in users) { 
+const getUserByEmail = (users, email) => {
+  for (let id in users) {
     if (email === users[id].email) {
-      return users[id]; //that would return the whole particular
+      return users[id];
     }
   }
-  return undefined; //changed from null to undefined
+  return undefined;
 };
 
 //urlDatabase could be defined as anything here it is just a placeholder

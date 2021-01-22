@@ -8,7 +8,7 @@ const testUsers = {
     email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
-  "user2RandomID": {
+  "user2RandomID": { 
     id: "user2RandomID",
     email: "user2@example.com",
     password: "dishwasher-funk"
