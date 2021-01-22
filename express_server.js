@@ -93,7 +93,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const user = users[userID];
   let currentUsersUrls = urlsForUser(userID, urlDatabase);
   if (!user) {
-    return res.status(401).send('Please log in to retrieve your URLs'); 
+    return res.status(401).send('Please log in to retrieve your URLs');
   } else if (!currentUsersUrls[shortURL]) {
     return res.status(401).send('This URL does not belong to this account'); 
   }
@@ -160,7 +160,6 @@ app.post('/login', (req, res) => {
 
   const user = getUserByEmail(users, req.body.email);
   ///find the user by email... this should be a function
-  console.log(user);
   //once the for loop is done we should have the user or it is not found
   if (!user) {
     res.status(403).send("Not found");
@@ -180,7 +179,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  req.session.userID = null;
+  req.session = null;
   //delete req.session.userID should also work
   res.redirect("/urls");
 });
