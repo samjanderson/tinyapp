@@ -75,6 +75,11 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  const userID = req.session.userID;
+  const user = users[userID];
+  if (user) {
+    return res.redirect('/urls');
+  }
   const templateVars = {
     user: null
   };
