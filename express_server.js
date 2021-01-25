@@ -88,6 +88,9 @@ app.get("/register", (req, res) => {
 
 
 app.get('/u/:shortURL', (req, res) => {
+  if (!urlDatabase[req.params.shortURL]) {
+    res.status(403).send("That short URL does not exist in this account");
+  }
   res.redirect(urlDatabase[req.params.shortURL].longURL);
 });
 
