@@ -99,7 +99,10 @@ app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session.userID;
   const user = users[userID];
   let currentUsersUrls = urlsForUser(userID, urlDatabase);
-  if (!user) {
+  if (!urlDatabase[shortURL]) {
+    return res.status(404).send('This URL does not exist');
+  }
+  else if (!user) {
     return res.status(401).send('Please log in to retrieve your URLs');
   } else if (!currentUsersUrls[shortURL]) {
     return res.status(401).send('This URL does not belong to this account');
@@ -219,6 +222,32 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
+//catchall condition at the bottom
+app.get('*', (req, res) => {
+  const userID = req.session.userID;
+  const user = users[userID];
+  res.status(404)
+  const templateVars = {
+    user,
+    userID,
+    statusCode: 404,
+    errorMessage: "The page you are looking for cannot be found"
+  };
+  res.render('error', templateVars);
+})
+
+app.post('*', (req, res) => {
+  const userID = req.session.userID;
+  const user = users[userID];
+  res.status(404)
+  const templateVars = {
+    user,
+    userID,
+    statusCode: 404,
+    errorMessage: "The page you are looking for cannot be found"
+  };
+  res.render('error', templateVars);
+})
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
